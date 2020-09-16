@@ -9,6 +9,9 @@
 #include "vjoyinterface.h"
 #include "Math.h"
 
+#include <iostream>
+#include <conio.h>
+
 // Default device ID (Used when ID not specified)
 #define DEV_ID		1
 
@@ -110,11 +113,44 @@ _tmain(int argc, _TCHAR* argv[])
 		iReport.bDevice = id;
 
 		// Set position data of 3 first axes
-		if (Z>35000) Z=0;
-		Z += 200;
+
+		char keyInput = getch();
+
+		std::cout << "input = " << keyInput << std::endl;
+
+		if (keyInput == 'e')
+		{
+			Z += 2000;
+		}
+
+		else if (keyInput == 'q')
+		{
+			Z -= 2000;
+		}
+
+		if (keyInput == 'w')
+		{
+			Y += 2000;
+		}
+
+		else if (keyInput == 's')
+		{
+			Y -= 2000;
+		}
+
+		if (keyInput == 'd')
+		{
+			X += 2000;
+		}
+
+		else if (keyInput == 'a')
+		{
+			X -= 2000;
+		}
+
 		iReport.wAxisZ = Z;
-		iReport.wAxisX = 32000-Z;
-		iReport.wAxisY = Z/2+7000;
+		iReport.wAxisX = X;
+		iReport.wAxisY = Y;
 
 		// Set position data of first 8 buttons
 		Btns = 1<<(Z/4000);
@@ -135,6 +171,14 @@ Exit:
 	RelinquishVJD(DevID);
 	return 0;
 }
+
+
+
+
+
+
+
+
 
 
 /* HELPER FUNCTIONS */
