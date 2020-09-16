@@ -23,7 +23,7 @@ def initialize():
 
 # Callback on connection
 def on_connect(client, userdata, flags, rc):
-    print(f'Connected (Result: {rc})')
+    print('Connected')
     client.subscribe('joystick_axis')
     client.publish('test_connect', payload='Connected')
 
