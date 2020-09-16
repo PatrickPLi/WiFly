@@ -1,0 +1,17 @@
+﻿cl : command line warning D9035: option 'Gm' has been deprecated and will be removed in a future release
+  vJoyClient.cpp
+C:\Users\lipat\Desktop\WiFly\vJoySDK\SDK\src\vJoyClient.cpp(68,11): warning C4477: 'wprintf' : format string '%s' requires an argument of type 'wchar_t *', but variadic argument 1 has type 'TCHAR *'
+C:\Users\lipat\Desktop\WiFly\vJoySDK\SDK\src\vJoyClient.cpp(68,11): message : consider using '%hs' in the format string
+C:\Users\lipat\Desktop\WiFly\vJoySDK\SDK\src\vJoyClient.cpp(68,11): message : consider using '%Ts' in the format string
+C:\Users\lipat\Desktop\WiFly\vJoySDK\SDK\src\vJoyClient.cpp(68,11): message : this warning is based on non-standard semantics used by Visual C++
+C:\Users\lipat\Desktop\WiFly\vJoySDK\SDK\src\vJoyClient.cpp(68,11): warning C4477: 'wprintf' : format string '%s' requires an argument of type 'wchar_t *', but variadic argument 2 has type 'TCHAR *'
+C:\Users\lipat\Desktop\WiFly\vJoySDK\SDK\src\vJoyClient.cpp(68,11): message : consider using '%hs' in the format string
+C:\Users\lipat\Desktop\WiFly\vJoySDK\SDK\src\vJoyClient.cpp(68,11): message : consider using '%Ts' in the format string
+C:\Users\lipat\Desktop\WiFly\vJoySDK\SDK\src\vJoyClient.cpp(68,11): message : this warning is based on non-standard semantics used by Visual C++
+C:\Users\lipat\Desktop\WiFly\vJoySDK\SDK\src\vJoyClient.cpp(68,11): warning C4477: 'wprintf' : format string '%s' requires an argument of type 'wchar_t *', but variadic argument 3 has type 'TCHAR *'
+C:\Users\lipat\Desktop\WiFly\vJoySDK\SDK\src\vJoyClient.cpp(68,11): message : consider using '%hs' in the format string
+C:\Users\lipat\Desktop\WiFly\vJoySDK\SDK\src\vJoyClient.cpp(68,11): message : consider using '%Ts' in the format string
+C:\Users\lipat\Desktop\WiFly\vJoySDK\SDK\src\vJoyClient.cpp(68,11): message : this warning is based on non-standard semantics used by Visual C++
+vJoyClient.obj : warning LNK4075: ignoring '/EDITANDCONTINUE' due to '/SAFESEH' specification
+  vJoyClient.vcxproj -> C:\Users\lipat\Desktop\WiFly\vJoySDK\SDK\src\Debug\vJoyClient.exe
+          1 file(s) copied.
