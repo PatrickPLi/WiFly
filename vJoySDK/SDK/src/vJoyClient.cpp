@@ -10,7 +10,14 @@
 #include "Math.h"
 
 #include <iostream>
+#include <stdio.h>
 #include <conio.h>
+#include <fstream>
+#include <string.h>
+#include <string>
+#include <vector>
+#include <sstream>
+
 
 // Default device ID (Used when ID not specified)
 #define DEV_ID		1
@@ -112,41 +119,79 @@ _tmain(int argc, _TCHAR* argv[])
 		id = (BYTE)DevID;
 		iReport.bDevice = id;
 
+		/* READ FILE */
+
+		std::string line;
+		std::ifstream myfile("joystick_axis.txt");
+		if (myfile.is_open())
+		{
+			while (std::getline(myfile, line))
+			{
+				/*std::cout << line << '\n';*/
+			}
+			myfile.close();
+		}
+
+		else {
+			/*std::cout << "Unable to open file";*/
+			continue;
+		}
+
+		std::vector<int> result;
+		std::stringstream ss(line); //create string stream from the string
+		while (ss.good()) {
+			std::string substr;
+			std::getline(ss, substr, ' '); //get first string delimited by comma
+			if (substr.length()) result.push_back(stoi(substr));
+		}
+		/*****************/
+
+		if (result.size() == 3)
+		{
+			if (X != result[0] || Y != result[1] || Z != result[2])
+			{
+			X = result[0];
+			Y = result[1];
+			Z = result[2];
+			std::cout << "X: " << X << '\n' << "Y: " << Y << '\n' << "Z: " << Z << '\n';
+			}
+		}
+
 		// Set position data of 3 first axes
 
-		char keyInput = getch();
+		//char keyInput = getch();
 
-		std::cout << "input = " << keyInput << std::endl;
+		//std::cout << "input = " << keyInput << std::endl;
 
-		if (keyInput == 'e')
-		{
-			Z += 2000;
-		}
+		//if (keyInput == 'e')
+		//{
+		//	Z += 2000;
+		//}
 
-		else if (keyInput == 'q')
-		{
-			Z -= 2000;
-		}
+		//else if (keyInput == 'q')
+		//{
+		//	Z -= 2000;
+		//}
 
-		if (keyInput == 'w')
-		{
-			Y += 2000;
-		}
+		//if (keyInput == 'w')
+		//{
+		//	Y += 2000;
+		//}
 
-		else if (keyInput == 's')
-		{
-			Y -= 2000;
-		}
+		//else if (keyInput == 's')
+		//{
+		//	Y -= 2000;
+		//}
 
-		if (keyInput == 'd')
-		{
-			X += 2000;
-		}
+		//if (keyInput == 'd')
+		//{
+		//	X += 2000;
+		//}
 
-		else if (keyInput == 'a')
-		{
-			X -= 2000;
-		}
+		//else if (keyInput == 'a')
+		//{
+		//	X -= 2000;
+		//}
 
 		iReport.wAxisZ = Z;
 		iReport.wAxisX = X;
@@ -164,7 +209,7 @@ _tmain(int argc, _TCHAR* argv[])
 			getchar();
 			AcquireVJD(DevID);
 		}
-		Sleep(2);
+		Sleep(200);
 	}
 
 Exit:
