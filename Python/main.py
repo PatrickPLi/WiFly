@@ -11,7 +11,20 @@ def parse_3_axis(str):
     vals = str.split(" ")
     if len(vals) != 3:
         return -1, -1, -1
-    return vals[0], vals[1], vals[2]
+
+    OldMax = 90
+    OldMin = -90
+    NewMax = 31000
+    NewMin = 0
+
+    scaledVals = [0] * 3
+
+    OldRange = (OldMax - OldMin)  
+    NewRange = (NewMax - NewMin)
+    for i in range(3):
+        scaledVals[i] = (((float(vals[i]) - OldMin) * NewRange) / OldRange) + NewMin
+
+    return scaledVals[0], scaledVals[1], scaledVals[2]
 
 while True:
     while client.message_received != True:
@@ -24,5 +37,6 @@ while True:
 
         x, y, z = parse_3_axis(client.message_contents)
 
-        socket.send_string("%s %s %s" % (x, y, z))
-        print("sent " + str(x) + " " + str(y) + " " + str(z))
+        # socket.send_string("%s %s %s" % (x, y, z))
+        socket.send_string("%d %d %d" % (x, y, z))
+        print("sent " + "%d %d %d" % (x, y, z))
