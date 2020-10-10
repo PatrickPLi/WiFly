@@ -25,6 +25,7 @@ def initialize():
 def on_connect(client, userdata, flags, rc):
     print('Connected')
     client.subscribe('joystick_axis')
+    client.subscribe('buttons')
     client.publish('test_connect', payload='Connected')
 
 # Callback when message is received

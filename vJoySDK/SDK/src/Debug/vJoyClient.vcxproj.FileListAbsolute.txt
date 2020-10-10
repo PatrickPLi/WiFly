@@ -2,3 +2,5 @@ C:\Users\lipat\Desktop\WiFly\vJoy218SDK-291116\SDK\src\Debug\vJoyClient.exe
 C:\Users\lipat\Desktop\WiFly\vJoy218SDK-291116\SDK\src\Debug\vJoyClient.pdb
 C:\Users\lipat\Desktop\WiFly\vJoySDK\SDK\src\Debug\vJoyClient.exe
 C:\Users\lipat\Desktop\WiFly\vJoySDK\SDK\src\Debug\vJoyClient.pdb
+C:\Users\lipat\Desktop\WiFly\vJoySDK\SDK\src\Debug\vJoyClient.vcxproj.CopyComplete
+C:\Users\lipat\Desktop\WiFly\vJoySDK\SDK\src\Debug\libzmq-mt-gd-4_3_3.dll

@@ -17,6 +17,9 @@
 #include <string>
 #include <vector>
 #include <sstream>
+#include <zmq.h>
+#include "zmq_helpers.h"
+#include <cassert>
 
 
 // Default device ID (Used when ID not specified)
@@ -114,10 +117,98 @@ _tmain(int argc, _TCHAR* argv[])
  
 	while (1)
 	{
-
 		// Set destenition vJoy device
 		id = (BYTE)DevID;
 		iReport.bDevice = id;
+
+
+		printf("Collecting updates from python client…\n");
+		void* context = zmq_ctx_new();
+		void* subscriber = zmq_socket(context, ZMQ_SUB);
+		int rc = zmq_connect(subscriber, "tcp://localhost:5556");
+		assert(rc == 0);
+
+		//  Subscribe to zipcode, default is NYC, 10001
+		const char* filter = NULL;
+		rc = zmq_setsockopt(subscriber, ZMQ_SUBSCRIBE, filter, 0);
+		assert(rc == 0);
+
+		while(1) {
+			char* string = s_recv(subscriber);
+
+			int x, y, z, t, g, b, fu, fd, vt;
+			sscanf(string, "%d %d %d %d %d %d", &x, &y, &z, &t, &g, &b, &fu, &fd, &vt);
+			free(string);
+			if (x < 0 && y < 0 && z < 0 && t < 0)
+			{
+
+				zmq_close(subscriber);
+				zmq_ctx_destroy(context);
+				goto Exit;
+			}
+			iReport.wAxisX = x;
+			iReport.wAxisY = y;
+			iReport.wAxisXRot = z;
+			iReport.wAxisZ = t;
+
+			Btns = 1;
+			if (g == 1) //gear down
+			{
+				Btns = Btns << 1;
+			}
+			else //gear up
+			{
+				Btns = Btns << 2;
+			}
+			Btns |= b;
+
+			//b1 is brake, b2 and b3 are gear
+			//b4 is flaps up, b5 is flaps down
+			printf("fu fd %d %d\n", fu, fd);
+			if (fu == 1)
+			{
+				Btns |= (1 << 3);
+				printf("BUTTON FU\n");
+			}
+
+			if (fd == 1)
+			{
+				Btns |= (1 << 4);
+				printf("BUTTON FD\n");
+			}
+
+			// Set position data of first 2 buttons
+			iReport.lButtons = Btns;
+
+			// Send position data to vJoy device
+			pPositionMessage = (PVOID)(&iReport);
+			if (!UpdateVJD(DevID, pPositionMessage))
+			{
+				printf("Feeding vJoy device number %d failed - try to enable device then press enter\n", DevID);
+				getchar();
+				AcquireVJD(DevID);
+			}
+			else
+			{
+				printf("Updated vJoy device with values %d %d %d\n", iReport.wAxisX, iReport.wAxisY, iReport.wAxisZ);
+			}
+			Sleep(200);
+		}
+
+
+
+
+
+
+
+
+
+
+
+
+
+		
+		
 
 		/* READ FILE */
 
@@ -193,23 +284,7 @@ _tmain(int argc, _TCHAR* argv[])
 		//	X -= 2000;
 		//}
 
-		iReport.wAxisZ = Z;
-		iReport.wAxisX = X;
-		iReport.wAxisY = Y;
-
-		// Set position data of first 8 buttons
-		Btns = 1<<(Z/4000);
-		iReport.lButtons = Btns;
-
-		// Send position data to vJoy device
-		pPositionMessage = (PVOID)(&iReport);
-		if (!UpdateVJD(DevID, pPositionMessage))
-		{
-			printf("Feeding vJoy device number %d failed - try to enable device then press enter\n", DevID);
-			getchar();
-			AcquireVJD(DevID);
-		}
-		Sleep(200);
+		
 	}
 
 Exit:
