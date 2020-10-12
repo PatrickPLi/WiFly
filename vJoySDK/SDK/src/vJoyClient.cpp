@@ -112,26 +112,26 @@ _tmain(int argc, _TCHAR* argv[])
 		goto Exit;
 	}
 	else
+	{
 		_tprintf("Acquired device number %d - OK\n", DevID);
-		
- 
+	}
+
+	// Connect to Python ZMQ client
+	printf("Collecting updates from python client\n");
+	void* context = zmq_ctx_new();
+	void* subscriber = zmq_socket(context, ZMQ_SUB);
+	int rc = zmq_connect(subscriber, "tcp://localhost:5556");
+	assert(rc == 0);
+
+	//  Subscribe to topic
+	const char* filter = NULL;
+	rc = zmq_setsockopt(subscriber, ZMQ_SUBSCRIBE, filter, 0);
+	assert(rc == 0);
 	while (1)
 	{
 		// Set destenition vJoy device
 		id = (BYTE)DevID;
 		iReport.bDevice = id;
-
-
-		printf("Collecting updates from python client…\n");
-		void* context = zmq_ctx_new();
-		void* subscriber = zmq_socket(context, ZMQ_SUB);
-		int rc = zmq_connect(subscriber, "tcp://localhost:5556");
-		assert(rc == 0);
-
-		//  Subscribe to zipcode, default is NYC, 10001
-		const char* filter = NULL;
-		rc = zmq_setsockopt(subscriber, ZMQ_SUBSCRIBE, filter, 0);
-		assert(rc == 0);
 
 		while(1) {
 			char* string = s_recv(subscriber);
