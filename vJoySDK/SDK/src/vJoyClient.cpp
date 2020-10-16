@@ -133,11 +133,14 @@ _tmain(int argc, _TCHAR* argv[])
 		id = (BYTE)DevID;
 		iReport.bDevice = id;
 
+		int buttons_last = 0;
+
 		while(1) {
 			char* string = s_recv(subscriber);
 
-			int x, y, z, t, g, b, fu, fd, vt;
-			sscanf(string, "%d %d %d %d %d %d", &x, &y, &z, &t, &g, &b, &fu, &fd, &vt);
+			int x, y, z, t, buttons;
+			//printf("%s\n", string);
+			sscanf(string, "%d %d %d %d %d", &x, &y, &z, &t, &buttons);
 			free(string);
 			if (x < 0 && y < 0 && z < 0 && t < 0)
 			{
@@ -151,31 +154,8 @@ _tmain(int argc, _TCHAR* argv[])
 			iReport.wAxisXRot = z;
 			iReport.wAxisZ = t;
 
-			Btns = 1;
-			if (g == 1) //gear down
-			{
-				Btns = Btns << 1;
-			}
-			else //gear up
-			{
-				Btns = Btns << 2;
-			}
-			Btns |= b;
-
-			//b1 is brake, b2 and b3 are gear
-			//b4 is flaps up, b5 is flaps down
-			printf("fu fd %d %d\n", fu, fd);
-			if (fu == 1)
-			{
-				Btns |= (1 << 3);
-				printf("BUTTON FU\n");
-			}
-
-			if (fd == 1)
-			{
-				Btns |= (1 << 4);
-				printf("BUTTON FD\n");
-			}
+			Btns = buttons_last ^ (buttons & ~0x07); //mask out first 3 bits
+			buttons_last = buttons;
 
 			// Set position data of first 2 buttons
 			iReport.lButtons = Btns;
@@ -210,43 +190,43 @@ _tmain(int argc, _TCHAR* argv[])
 		
 		
 
-		/* READ FILE */
+		///* READ FILE */
 
-		std::string line;
-		std::ifstream myfile("joystick_axis.txt");
-		if (myfile.is_open())
-		{
-			while (std::getline(myfile, line))
-			{
-				/*std::cout << line << '\n';*/
-			}
-			myfile.close();
-		}
+		//std::string line;
+		//std::ifstream myfile("joystick_axis.txt");
+		//if (myfile.is_open())
+		//{
+		//	while (std::getline(myfile, line))
+		//	{
+		//		/*std::cout << line << '\n';*/
+		//	}
+		//	myfile.close();
+		//}
 
-		else {
-			/*std::cout << "Unable to open file";*/
-			continue;
-		}
+		//else {
+		//	/*std::cout << "Unable to open file";*/
+		//	continue;
+		//}
 
-		std::vector<int> result;
-		std::stringstream ss(line); //create string stream from the string
-		while (ss.good()) {
-			std::string substr;
-			std::getline(ss, substr, ' '); //get first string delimited by comma
-			if (substr.length()) result.push_back(stoi(substr));
-		}
-		/*****************/
+		//std::vector<int> result;
+		//std::stringstream ss(line); //create string stream from the string
+		//while (ss.good()) {
+		//	std::string substr;
+		//	std::getline(ss, substr, ' '); //get first string delimited by comma
+		//	if (substr.length()) result.push_back(stoi(substr));
+		//}
+		///*****************/
 
-		if (result.size() == 3)
-		{
-			if (X != result[0] || Y != result[1] || Z != result[2])
-			{
-			X = result[0];
-			Y = result[1];
-			Z = result[2];
-			std::cout << "X: " << X << '\n' << "Y: " << Y << '\n' << "Z: " << Z << '\n';
-			}
-		}
+		//if (result.size() == 3)
+		//{
+		//	if (X != result[0] || Y != result[1] || Z != result[2])
+		//	{
+		//	X = result[0];
+		//	Y = result[1];
+		//	Z = result[2];
+		//	std::cout << "X: " << X << '\n' << "Y: " << Y << '\n' << "Z: " << Z << '\n';
+		//	}
+		//}
 
 		// Set position data of 3 first axes
 
