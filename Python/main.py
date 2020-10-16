@@ -45,16 +45,17 @@ def parse_buttons(strg):
         return str(button_LUT[vals[0]])
 
 while True:
-    while client.message_received != True:
-        time.sleep(0.3)
+    # while client.message_received != True:
+    #     time.sleep(0.01)
 
-    client.message_received = False
-    # print(client.message_contents)
-    if client.message_topic == "joystick_axis":
-        print(client.message_contents)
+    if client.message_received:
+        # print(client.message_contents)
+        if client.message_topic == "joystick_axis":
+            print(client.message_contents)
 
-        x, y, z, t, buttons = parse_inputs(client.message_contents)
+            x, y, z, t, buttons = parse_inputs(client.message_contents)
 
-        # socket.send_string("%s %s %s" % (x, y, z))
-        socket.send_string("%d %d %d %d %d" % (x, y, z, t, buttons))
-        print("sent " + "%d %d %d %d %d" % (x, y, z, t, buttons))
+            # socket.send_string("%s %s %s" % (x, y, z))
+            socket.send_string("%d %d %d %d %d" % (x, y, z, t, buttons))
+            print("sent " + "%d %d %d %d %d" % (x, y, z, t, buttons))
+            client.message_received = False

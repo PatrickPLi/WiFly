@@ -15,8 +15,6 @@ C:\Users\lipat\Desktop\WiFly\vJoySDK\SDK\src\vJoyClient.cpp(81,11): warning C447
 C:\Users\lipat\Desktop\WiFly\vJoySDK\SDK\src\vJoyClient.cpp(81,11): message : consider using '%hs' in the format string
 C:\Users\lipat\Desktop\WiFly\vJoySDK\SDK\src\vJoyClient.cpp(81,11): message : consider using '%Ts' in the format string
 C:\Users\lipat\Desktop\WiFly\vJoySDK\SDK\src\vJoyClient.cpp(81,11): message : this warning is based on non-standard semantics used by Visual C++
-C:\Users\lipat\Desktop\WiFly\vJoySDK\SDK\src\vJoyClient.cpp(140,64): warning C4474: 'sscanf' : too many arguments passed for format string
-C:\Users\lipat\Desktop\WiFly\vJoySDK\SDK\src\vJoyClient.cpp(140,64): message : placeholders and their parameters expect 6 variadic arguments, but 9 were provided
-C:\Users\lipat\Desktop\WiFly\vJoySDK\SDK\src\vJoyClient.cpp(140,4): warning C4996: 'sscanf': This function or variable may be unsafe. Consider using sscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+C:\Users\lipat\Desktop\WiFly\vJoySDK\SDK\src\vJoyClient.cpp(145,4): warning C4996: 'sscanf': This function or variable may be unsafe. Consider using sscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
   vJoyClient.vcxproj -> C:\Users\lipat\Desktop\WiFly\vJoySDK\SDK\src\Debug\vJoyClient.exe
           1 file(s) copied.

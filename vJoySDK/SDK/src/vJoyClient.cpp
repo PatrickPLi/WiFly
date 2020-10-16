@@ -125,7 +125,9 @@ _tmain(int argc, _TCHAR* argv[])
 
 	//  Subscribe to topic
 	const char* filter = NULL;
+	int HWM = 1;
 	rc = zmq_setsockopt(subscriber, ZMQ_SUBSCRIBE, filter, 0);
+	rc |= zmq_setsockopt(subscriber, ZMQ_RCVHWM, &HWM, sizeof(HWM));
 	assert(rc == 0);
 	while (1)
 	{
@@ -170,7 +172,7 @@ _tmain(int argc, _TCHAR* argv[])
 			}
 			else
 			{
-				printf("Updated vJoy device with values %d %d %d\n", iReport.wAxisX, iReport.wAxisY, iReport.wAxisZ);
+				printf("Updated vJoy device with values %d %d %d %d %d\n", iReport.wAxisX, iReport.wAxisY, iReport.wAxisXRot, iReport.wAxisZ, iReport.lButtons);
 			}
 			Sleep(200);
 		}
