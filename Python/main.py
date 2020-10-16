@@ -13,8 +13,8 @@ button_LUT = {"fu": 1, "fd": 2, "tv": 3, "tb": 4}
 
 def parse_inputs(strg):
     vals = strg.split(" ")
-    if len(vals) != 9:
-        return -1, -1, -1, -1, -1, -1, -1, -1, -1
+    if len(vals) != 5:
+        return -1, -1, -1, -1, -1
 
     OldMax = 45
     OldMin = -45
@@ -31,7 +31,7 @@ def parse_inputs(strg):
     # if vals[6] or vals[7] or vals[8]:
     #     client.publish('btnRecv', "1")
 
-    return scaledVals[0], scaledVals[1], scaledVals[2], scaledVals[3], int(vals[4]), int(vals[5]), int(vals[6]), int(vals[7]), int(vals[8])
+    return scaledVals[0], scaledVals[1], scaledVals[2], scaledVals[3], int(vals[4])
 
 def parse_buttons(strg):
     vals = strg.split(" ")
@@ -53,8 +53,8 @@ while True:
     if client.message_topic == "joystick_axis":
         print(client.message_contents)
 
-        x, y, z, t, g, b, fu, fd, vt = parse_inputs(client.message_contents)
+        x, y, z, t, buttons = parse_inputs(client.message_contents)
 
         # socket.send_string("%s %s %s" % (x, y, z))
-        socket.send_string("%d %d %d %d %d %d %d %d %d" % (x, y, z, t, g, b, fu, fd, vt))
-        print("sent " + "%d %d %d %d %d %d %d %d %d" % (x, y, z, t, g, b, fu, fd, vt))
+        socket.send_string("%d %d %d %d %d" % (x, y, z, t, buttons))
+        print("sent " + "%d %d %d %d %d" % (x, y, z, t, buttons))
