@@ -78,7 +78,8 @@ _tmain(int argc, _TCHAR* argv[])
 	}
 	else
 	{
-		wprintf(L"Vendor: %s\nProduct :%s\nVersion Number:%s\n", static_cast<TCHAR *> (GetvJoyManufacturerString()), static_cast<TCHAR *>(GetvJoyProductString()), static_cast<TCHAR *>(GetvJoySerialNumberString()));
+		printf("Starting vJoy Client\n");
+		//wprintf(L"Vendor: %s\nProduct :%s\nVersion Number:%s\n", static_cast<TCHAR *> (GetvJoyManufacturerString()), static_cast<TCHAR *>(GetvJoyProductString()), static_cast<TCHAR *>(GetvJoySerialNumberString()));
 	};
 
 	// Get the status of the vJoy device before trying to acquire it
@@ -125,7 +126,7 @@ _tmain(int argc, _TCHAR* argv[])
 
 	//  Subscribe to topic
 	const char* filter = NULL;
-	int HWM = 1;
+	int HWM = 5;
 	rc = zmq_setsockopt(subscriber, ZMQ_SUBSCRIBE, filter, 0);
 	rc |= zmq_setsockopt(subscriber, ZMQ_RCVHWM, &HWM, sizeof(HWM));
 	assert(rc == 0);
@@ -174,99 +175,7 @@ _tmain(int argc, _TCHAR* argv[])
 			{
 				printf("Updated vJoy device with values %d %d %d %d %d\n", iReport.wAxisX, iReport.wAxisY, iReport.wAxisXRot, iReport.wAxisZ, iReport.lButtons);
 			}
-			Sleep(200);
 		}
-
-
-
-
-
-
-
-
-
-
-
-
-
-		
-		
-
-		///* READ FILE */
-
-		//std::string line;
-		//std::ifstream myfile("joystick_axis.txt");
-		//if (myfile.is_open())
-		//{
-		//	while (std::getline(myfile, line))
-		//	{
-		//		/*std::cout << line << '\n';*/
-		//	}
-		//	myfile.close();
-		//}
-
-		//else {
-		//	/*std::cout << "Unable to open file";*/
-		//	continue;
-		//}
-
-		//std::vector<int> result;
-		//std::stringstream ss(line); //create string stream from the string
-		//while (ss.good()) {
-		//	std::string substr;
-		//	std::getline(ss, substr, ' '); //get first string delimited by comma
-		//	if (substr.length()) result.push_back(stoi(substr));
-		//}
-		///*****************/
-
-		//if (result.size() == 3)
-		//{
-		//	if (X != result[0] || Y != result[1] || Z != result[2])
-		//	{
-		//	X = result[0];
-		//	Y = result[1];
-		//	Z = result[2];
-		//	std::cout << "X: " << X << '\n' << "Y: " << Y << '\n' << "Z: " << Z << '\n';
-		//	}
-		//}
-
-		// Set position data of 3 first axes
-
-		//char keyInput = getch();
-
-		//std::cout << "input = " << keyInput << std::endl;
-
-		//if (keyInput == 'e')
-		//{
-		//	Z += 2000;
-		//}
-
-		//else if (keyInput == 'q')
-		//{
-		//	Z -= 2000;
-		//}
-
-		//if (keyInput == 'w')
-		//{
-		//	Y += 2000;
-		//}
-
-		//else if (keyInput == 's')
-		//{
-		//	Y -= 2000;
-		//}
-
-		//if (keyInput == 'd')
-		//{
-		//	X += 2000;
-		//}
-
-		//else if (keyInput == 'a')
-		//{
-		//	X -= 2000;
-		//}
-
-		
 	}
 
 Exit:
