@@ -17,13 +17,24 @@
 #include <string>
 #include <vector>
 #include <sstream>
-#include <zmq.h>
-#include "zmq_helpers.h"
+//#include <zmq.h>
+//#include "zmq_helpers.h"
 #include <cassert>
+#include <paho-mqtt/MQTTClient.h>
 
 
 // Default device ID (Used when ID not specified)
 #define DEV_ID		1
+
+// MQTT Defines
+
+#define ADDRESS     "tcp://mrzpfs1b9tj1n.messaging.solace.cloud:20550"
+#define CLIENTID    "solace-cloud-client"
+#define TOPIC       "joystick_axis"
+#define TOPIC_LEN   14
+#define PAYLOAD     "Hello World!"
+#define QOS         1
+#define TIMEOUT     100000L
 
 // Prototypes
 void  CALLBACK FfbFunction(PVOID data);
@@ -44,6 +55,68 @@ int serial_result = 0;
 
 
 JOYSTICK_POSITION_V2 iReport; // The structure that holds the full position data
+
+char string[256]; //buffer to hold incoming messages
+
+bool recv_ready = false;
+
+
+
+volatile MQTTClient_deliveryToken deliveredtoken;
+
+void parse_inputs(char* string, int* x, int* y, int* z, int* t, int* buttons)
+{
+	float xf=0, yf=0, zf=0, tf=0;
+	sscanf(string, "%f %f %f %f %d", &xf, &yf, &zf, &tf, buttons);
+	int OldMax = 45;
+	int	OldMin = -45;
+	int	NewMax = 32766;
+	int	NewMin = 0; 
+	int OldRange = (OldMax - OldMin);
+	int NewRange = (NewMax - NewMin);
+	*x = (((xf - OldMin) * NewRange) / OldRange) + NewMin;
+	*y = (((yf - OldMin) * NewRange) / OldRange) + NewMin;
+	*z = (((zf - OldMin) * NewRange) / OldRange) + NewMin;
+	*t = (((tf - OldMin) * NewRange) / OldRange) + NewMin;
+}
+
+void delivered(void* context, MQTTClient_deliveryToken dt)
+{
+	printf("Message with token value %d delivery confirmed\n", dt);
+	deliveredtoken = dt;
+}
+int msgarrvd(void* context, char* topicName, int topicLen, MQTTClient_message* message)
+{
+	int i;
+	char* payloadptr;
+	/*printf("Message arrived\n");
+	printf("     topic: %s\n", topicName);
+	*/printf("   message: ");
+	payloadptr = (char*)message->payload;
+	if (message->payloadlen > 255)
+	{
+		printf("Payload length exceeded maximum\n");
+	}
+	else
+	{
+		memset(string, 0, 256);
+		strncpy(string, payloadptr, message->payloadlen);
+		printf("%s\n", string);
+	}
+	MQTTClient_freeMessage(&message);
+	MQTTClient_free(topicName);
+	recv_ready = true;
+	return 1;
+}
+void connlost(void* context, char* cause)
+{
+	printf("\nConnection lost\n");
+	printf("     cause: %s\n", cause);
+}
+
+
+
+
 
 int
 __cdecl
@@ -117,65 +190,80 @@ _tmain(int argc, _TCHAR* argv[])
 		_tprintf("Acquired device number %d - OK\n", DevID);
 	}
 
-	// Connect to Python ZMQ client
-	printf("Collecting updates from python client\n");
-	void* context = zmq_ctx_new();
-	void* subscriber = zmq_socket(context, ZMQ_SUB);
-	int rc = zmq_connect(subscriber, "tcp://localhost:5556");
-	assert(rc == 0);
-
-	//  Subscribe to topic
-	const char* filter = NULL;
-	int HWM = 5;
-	rc = zmq_setsockopt(subscriber, ZMQ_SUBSCRIBE, filter, 0);
-	rc |= zmq_setsockopt(subscriber, ZMQ_RCVHWM, &HWM, sizeof(HWM));
-	assert(rc == 0);
-	while (1)
+	// Connect to MQTT
+	MQTTClient client;
+	MQTTClient_connectOptions conn_opts = MQTTClient_connectOptions_initializer;
+	MQTTClient_create(&client, ADDRESS, CLIENTID,
+		MQTTCLIENT_PERSISTENCE_NONE, NULL);
+	conn_opts.keepAliveInterval = 20;
+	conn_opts.cleansession = 1;
+	conn_opts.username = "solace-cloud-client";
+	conn_opts.password = "p2i7li6ckbaimoe0draq0qdl82";
+	MQTTClient_setCallbacks(client, NULL, connlost, msgarrvd, delivered);
+	int rcc;
+	if ((rcc = MQTTClient_connect(client, &conn_opts)) != MQTTCLIENT_SUCCESS)
 	{
-		// Set destenition vJoy device
-		id = (BYTE)DevID;
-		iReport.bDevice = id;
+		printf("Failed to connect, return code %d\n", rcc);
+		exit(-1);
+	}
+	else
+	{
+		printf("\nMQTT Client Connected Successfully\n");
+	}
+	MQTTClient_subscribe(client, TOPIC, QOS);
 
-		int buttons_last = 0;
 
-		while(1) {
-			char* string = s_recv(subscriber);
+	// Set destination vJoy device
+	id = (BYTE)DevID;
+	iReport.bDevice = id;
 
-			int x, y, z, t, buttons;
-			//printf("%s\n", string);
-			sscanf(string, "%d %d %d %d %d", &x, &y, &z, &t, &buttons);
-			free(string);
-			if (x < 0 && y < 0 && z < 0 && t < 0)
-			{
+	int buttons_last = 0;
 
-				zmq_close(subscriber);
-				zmq_ctx_destroy(context);
-				goto Exit;
-			}
-			iReport.wAxisX = x;
-			iReport.wAxisY = y;
-			iReport.wAxisXRot = z;
-			iReport.wAxisZ = t;
+	int x, y, z, t, buttons;
 
-			Btns = buttons_last ^ (buttons & ~0x07); //mask out first 3 bits
-			buttons_last = buttons;
-
-			// Set position data of first 2 buttons
-			iReport.lButtons = Btns;
-
-			// Send position data to vJoy device
-			pPositionMessage = (PVOID)(&iReport);
-			if (!UpdateVJD(DevID, pPositionMessage))
-			{
-				printf("Feeding vJoy device number %d failed - try to enable device then press enter\n", DevID);
-				getchar();
-				AcquireVJD(DevID);
-			}
-			else
-			{
-				printf("Updated vJoy device with values %d %d %d %d %d\n", iReport.wAxisX, iReport.wAxisY, iReport.wAxisXRot, iReport.wAxisZ, iReport.lButtons);
-			}
+	while(1) {
+		/*char* string = s_recv(subscriber);*/
+		while (!recv_ready)
+		{
+			Sleep(0);
 		}
+
+		parse_inputs(string, &x, &y, &z, &t, &buttons);
+
+		//printf("%s\n", string);
+
+		//free(string);
+		if (x < 0 && y < 0 && z < 0 && t < 0)
+		{
+
+			//zmq_close(subscriber);
+			//zmq_ctx_destroy(context);
+			goto Exit;
+		}
+		iReport.wAxisX = x;
+		iReport.wAxisY = y;
+		iReport.wAxisXRot = z;
+		iReport.wAxisZ = t;
+
+		Btns = buttons_last ^ (buttons & ~0x07); //mask out first 3 bits
+		buttons_last = buttons;
+
+		// Set position data of first 2 buttons
+		iReport.lButtons = Btns;
+
+		// Send position data to vJoy device
+		pPositionMessage = (PVOID)(&iReport);
+		if (!UpdateVJD(DevID, pPositionMessage))
+		{
+			printf("Feeding vJoy device number %d failed - try to enable device then press enter\n", DevID);
+			getchar();
+			AcquireVJD(DevID);
+		}
+		else
+		{
+			printf("Updated vJoy device with values %d %d %d %d %d\n", iReport.wAxisX, iReport.wAxisY, iReport.wAxisXRot, iReport.wAxisZ, iReport.lButtons);
+		}
+		recv_ready = false;
 	}
 
 Exit:
